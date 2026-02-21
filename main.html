@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"> <head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>برنامه کارها</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+<body>
+  <div class="dashboard-container">
+
+    <div class="top-header">
+      <div class="greeting">
+        <h2>سلام 👋</h2>
+        <p>خوش اومدی abol</p>
+      </div>
+
+      <section class="categories">
+        <div class="category-card" data-cat="business">
+          <h3>کاری</h3>
+          <p>18 عدد</p>
+        </div>
+        <div class="category-card active " data-cat="personal">
+          <h3>شخصی</h3>
+          <p>20 عدد</p>
+        </div>
+      </section>
+
+      <button id="open-add-modal" class="add-btn">ایجاد تسک جدید +</button>
+    </div>
+
+    <section class="kanban-board">
+      <div class="board"> <div class="column">
+          <h3>کارها 📌</h3>
+          <ul id="todo-list" class="drop-zone" ></ul>
+        </div>
+        <div class="column">
+          <h3>در حال انجام ⏳</h3>
+          <ul id="in-progress-list" class="drop-zone" ></ul>
+        </div>
+        <div class="column">
+          <h3>انجام شده ✅</h3>
+          <ul id="done-list" class="drop-zone"></ul>
+        </div>
+      </div>
+    </section>
+
+  </div> <div id="add-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-modal" id="close-modal">×</span>
+      <h2>ایجاد تسک جدید</h2>
+      <input type="text" id="todo-input" class="modal-input" placeholder="چه کاری باید انجام بشه؟">
+      <textarea id="todo-desc" class="modal-input" placeholder="توضیحات"></textarea>
+
+      <div class="category-select">
+        <button class="cat-btn active" data-cat="business">کاری</button>
+        <button class="cat-btn" data-cat="personal">شخصی</button>
+      </div>
+      <button id="add-btn-final" class="btn-save">ذخیره تسک</button>
+    </div>
+  </div>
+
+    </div> <div id="edit-modal" class="modal">
+    <div class="modal-content">
+      <span id="close-edit-modal" class="close-modal">×</span>
+      <h2>ویرایش تسک</h2>
+      <input type="text" id="edit-todo-input" class="modal-input" placeholder="چه کاری باید انجام بشه؟">
+      <textarea id="edit-todo-desc" class="modal-input" placeholder="توضیحات" rows="3"></textarea>
+
+      <div class="category-selection">
+        <button class="catE-btn active" data-cat="business">کاری</button>
+        <button class="catE-btn" data-cat="personal">شخصی</button> 
+      </div>
+      <button id="save-edit-btn" class="btn-save">ذخیره تسک</button>
+    </div>
+  </div>
+  <script src='main.js'></script>
+</body>
+</html>
