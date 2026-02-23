@@ -1,6 +1,5 @@
-/* =========================================
-   ۱. تنظیمات پایه و بدنه اصلی (Base & Body)
-   ========================================= */
+   /*(Base & Body)*/
+
 body {
   height: 100vh;
   background-color: #daebee;
@@ -10,12 +9,10 @@ body {
   align-items: center;
   margin: 0;
   color: #2b3a67;
-  direction: rtl; /* برای راست‌چین شدن متون فارسی */
+  direction: rtl; 
 }
 
-/* =========================================
-   ۲. هدر و دسته‌بندی‌های اصلی (Header & Categories)
-   ========================================= */
+/*(Header & Categories)*/
 .top-header {
   display: flex;
   justify-content: space-between;
@@ -27,7 +24,7 @@ body {
   display: flex;
   gap: 20px;
   justify-content: center;
-  width: 100%; /* تنظیم عرض برای هماهنگی بهتر */
+  width: 100%;
   margin-bottom: 10px;
 }
 
@@ -77,9 +74,7 @@ width: 300px;
   background-color: #2563eb;
 }
 
-/* =========================================
-   ۳. ستون‌ها و لیست تسک‌ها (Board & Columns)
-   ========================================= */
+/*(Board & Columns)*/
 .board {
   display: flex;
   gap: 20px;
@@ -107,7 +102,7 @@ width: 300px;
   margin-bottom: 15px;
   padding: 15px;
   border-radius: 12px;
-  border-bottom: 4px solid #f1f5f9; /* ضخامت خط پایین را معقول‌تر کردم */
+  border-bottom: 4px solid #f1f5f9;
   cursor: grab;
   display: flex;
   justify-content: space-between;
@@ -119,14 +114,13 @@ width: 300px;
 .column li:hover {
   background-color: #f8fafc;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* سایه نرم‌تر */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .column li:hover button {
   opacity: 1;
 }
 
-/* استایل دکمه‌های روی هر تسک (حذف و ویرایش) */
 .column button {
   border: none;
   background-color: transparent;
@@ -145,25 +139,23 @@ width: 300px;
   align-items: center; 
 }
 
-/* =========================================
-   ۴. مودال‌ها: افزودن و ویرایش (Modals)
-   ========================================= */
+/*(Modals)*/
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* پس‌زمینه تاریک‌تر برای تمرکز بهتر */
-  display: none; /* پیش‌فرض مخفی */
-  justify-content: center; /* وسط‌چین افقی */
-  align-items: center; /* وسط‌چین عمودی */
+  background-color: rgba(0, 0, 0, 0.6); 
+  display: none; 
+  justify-content: center; 
+  align-items: center; 
   z-index: 1000;
-  backdrop-filter: blur(4px); /* کمی بلور برای زیبایی */
+  backdrop-filter: blur(4px);
 }
 
 .modal.active {
-  display: flex; /* وقتی کلاس اکتیو می‌گیرد وسط صفحه ظاهر می‌شود */
+  display: flex;
 }
 
 .modal-content {
@@ -175,7 +167,7 @@ width: 300px;
   max-width: 450px;
   text-align: center;
   position: relative;
-  animation: slideIn 0.3s ease-out; /* انیمیشن نرم باز شدن */
+  animation: slideIn 0.3s ease-out;
 }
 
 .modal-input {
@@ -240,7 +232,7 @@ width: 300px;
 .close-btn {
   position: absolute;
   top: 15px;
-  right: 20px; /* چون راست‌چین کردیم، دکمه بستن رفت راست */
+  right: 20px;
   font-size: 1.5rem;
   color: #94a3b8;
   cursor: pointer;
@@ -248,12 +240,10 @@ width: 300px;
 }
 
 .close-btn:hover {
-  color: #ef4444; /* قرمز شدن در هاور */
+  color: #ef4444;
 }
 
-/* =========================================
-   ۵. صفحه جزئیات تسک (Task Details Page)
-   ========================================= */
+/*Task Details Page*/
 .task-details-container {
   width: 100%;
   max-width: 600px;
@@ -313,9 +303,7 @@ width: 300px;
   background-color: #1e293b;
 }
 
-/* =========================================
-   ۶. انیمیشن‌ها (Keyframes)
-   ========================================= */
+/*(Keyframes) */
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }

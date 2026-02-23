@@ -1,253 +1,292 @@
-const todoInput = document.getElementById("todo-input");
-const todoList = document.getElementById("todo-list");
-const inProgressList = document.getElementById("in-progress-list");
-const doneList = document.getElementById("done-list");
-const modal = document.getElementById("add-modal");
-const openModalBtn = document.getElementById("open-add-modal");
-const closeModalBtn = document.getElementById("close-modal");
-const addBtnFinal = document.getElementById("add-btn-final");
-const categoryCards = document.querySelectorAll(".category-card");
-const modalCatBtns = document.querySelectorAll(".cat-btn");
-const todoDescInput = document.getElementById("todo-desc");
-const modalEdit = document.getElementById("edit-modal");
-const editTodoInput = document.getElementById("edit-todo-input");
-const editTodoDescInput = document.getElementById("edit-todo-desc");
-const saveEditBtn = document.getElementById("save-edit-btn");
-const closeEditModalBtn = document.getElementById("close-edit-modal");
+// DOM CACHE
+const DOM = {
+  todoInput: document.getElementById("todo-input"),
+  todoList: document.getElementById("todo-list"),
+  inProgressList: document.getElementById("in-progress-list"),
+  doneList: document.getElementById("done-list"),
+  modal: document.getElementById("add-modal"),
+  openModalBtn: document.getElementById("open-add-modal"),
+  closeModalBtn: document.getElementById("close-modal"),
+  saveNewTaskBtn: document.getElementById("add-btn-final"),
+  categoryCards: document.querySelectorAll(".category-card"),
+  modalCatBtns: document.querySelectorAll(".cat-btn"),
+  todoDescInput: document.getElementById("todo-desc"),
+  modalEdit: document.getElementById("edit-modal"),
+  editTodoInput: document.getElementById("edit-todo-input"),
+  editTodoDescInput: document.getElementById("edit-todo-desc"),
+  saveEditBtn: document.getElementById("save-edit-btn"),
+  closeEditModalBtn: document.getElementById("close-edit-modal"),
+};
 
-// State
-let selectedCategory = localStorage.getItem("selectedCategory");
-let todos = JSON.parse(localStorage.getItem("todos")) || [];
+//            STATE MANAGEMENT
+// ==========================================
 
-// Save initial state if not present
-if (!selectedCategory) setSelectedCategory("all");
+const Store = {
+  // State variables
+  todos: JSON.parse(localStorage.getItem("todos")) || [],
+  selectedCategory: localStorage.getItem("selectedCategory") || "all",
 
-// --- Event Listeners ---
+  // Save to local storage
+  save() {
+    localStorage.setItem("todos", JSON.stringify(this.todos));
+    localStorage.setItem("selectedCategory", this.selectedCategory);
+  },
 
-// E. Category Filtering Logic
-categoryCards.forEach((card) => {
-  card.addEventListener("click", () => {
-    categoryCards.forEach((c) => c.classList.remove("active"));
-    card.classList.add("active");
+  setCategory(cat) {
+    this.selectedCategory = cat;
+    this.save();
+  },
 
-    setSelectedCategory(card.dataset.cat);
+  // Add new task
+  addTodo(text, desc, category) {
+    const newTodo = {
+      id: Date.now(),
+      text,
+      description: desc,
+      category,
+      status: "todo",
+    };
+    this.todos.push(newTodo);
+    this.save();
+  },
 
-    filterAndRender();
-  });
-});
+  // Delete task
+  deleteTodo(id) {
+    this.todos = this.todos.filter((t) => t.id !== id);
+    this.save();
+  },
 
-// E. Modal Category Selection
-modalCatBtns.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    modalCatBtns.forEach((c) => c.classList.remove("active"));
-    btn.classList.add("active");
-  });
-});
-
-// E. Modals & Inputs
-openModalBtn.addEventListener("click", () => modal.classList.add("active"));
-closeModalBtn.addEventListener("click", () => modal.classList.remove("active"));
-
-addBtnFinal.addEventListener("click", () => {
-  addTodo();
-});
-closeEditModalBtn.addEventListener("click", () =>
-  modalEdit.classList.remove("active"),
-);
-// --- Functions ---
-
-function setSelectedCategory(cat) {
-  selectedCategory = cat;
-  localStorage.setItem("selectedCategory", selectedCategory);
-}
-
-function addTodo() {
-  const todoText = todoInput.value.trim();
-  const activeCategoryBtn = document.querySelector(".cat-btn.active");
-
-  if (!todoText) {
-    alert("لطفا یک تسک وارد کنید!");
-    return;
-  }
-
-  const newTodo = {
-    id: Date.now(),
-    text: todoText,
-    status: "todo",
-    category: activeCategoryBtn ? activeCategoryBtn.dataset.cat : "personal",
-    description: todoDescInput.value.trim(),
-  };
-
-  todos.push(newTodo);
-  saveAndRender();
-
-  todoInput.value = "";
-  todoDescInput.value = "";
-  modal.classList.remove("active");
-}
-
-function renderTodos(list) {
-  todoList.innerHTML = "";
-  inProgressList.innerHTML = "";
-  doneList.innerHTML = "";
-
-  // If list is null, render nothing
-  const listToRender = list || [];
-
-  listToRender.forEach((todo) => {
-    const li = createTodoElement(todo);
-    if (todo.status === "todo") {
-      todoList.appendChild(li);
-    } else if (todo.status === "in-progress") {
-      inProgressList.appendChild(li);
-    } else if (todo.status === "done") {
-      doneList.appendChild(li);
-    }
-  });
-}
-
-function createTodoElement(todo) {
-  const li = document.createElement("li");
-  li.setAttribute("draggable", "true");
-
-  const contentDiv = document.createElement("div");
-  contentDiv.style.cursor = "pointer";
-
-  const title = document.createElement("strong");
-  title.textContent = todo.text;
-
-  const desc = document.createElement("p");
-  desc.textContent = todo.description
-    ? todo.description.substring(0, 20) + "..."
-    : "";
-  contentDiv.appendChild(title);
-  contentDiv.appendChild(desc);
-
-  contentDiv.addEventListener("click", () => {
-    window.location.href = `task.html?id=${todo.id}`;
-  });
-  li.appendChild(contentDiv);
-
-  // Drag Start
-  li.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("text/plain", todo.id);
-  });
-
-  // Buttons Container
-  const btnContainer = document.createElement("div");
-  // Delete Button
-  const deleteButton = document.createElement("button");
-  deleteButton.textContent = "✖️";
-  deleteButton.addEventListener("click", (e) => {
-    e.stopPropagation();
-    deleteTodo(todo.id);
-  });
-  // Edit Button
-  const editButton = document.createElement("button");
-  editButton.textContent = "✏️";
-  editButton.addEventListener("click", (e) => {
-    e.stopPropagation();
-    editTodo(todo.id);
-  });
-  btnContainer.appendChild(deleteButton);
-  btnContainer.appendChild(editButton);
-  btnContainer.classList.add("btn-container");
-  li.appendChild(btnContainer);
-
-  return li;
-}
-
-function editTodo(id) {
-  const currentTodo = todos.find((t) => t.id === id);
-  editTodoInput.value = currentTodo.text;
-  editTodoDescInput.value = currentTodo.description;
-
-  const categoryCards = document.querySelectorAll(".catE-btn");
-  categoryCards.forEach((btn) => {
-    btn.dataset.cat === currentTodo.category
-      ? btn.classList.add("active")
-      : btn.classList.remove("active");
-  });
-
-  modalEdit.classList.add("active");
-
-  saveEditBtn.onclick = () => {
-    saveEditedTodo(id);
-    modalEdit.classList.remove("active");
-  };
-}
-
-function saveEditedTodo(id) {
-  const activeBtn = document.querySelector(".catE-btn.active");
-  todos = todos.map((t) =>
-    t.id === id
-      ? {
-          ...t,
-          text: editTodoInput.value.trim(),
-          description: editTodoDescInput.value.trim(),
-          category: activeBtn ? activeBtn.dataset.cat : t.category,
-        }
-      : t,
-  );
-  saveAndRender();
-}
-function updateCategoryEdit() {
-  const categoryCards = document.querySelectorAll(".catE-btn");
-  categoryCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      categoryCards.forEach((c) => c.classList.remove("active"));
-      card.classList.add("active");
-    });
-  });
-}
-
-function deleteTodo(id) {
-  todos = todos.filter((todo) => todo.id !== id);
-  saveAndRender();
-}
-
-// Helper function to update storage and render
-function saveAndRender() {
-  localStorage.setItem("todos", JSON.stringify(todos));
-  filterAndRender();
-}
-
-// --- Drag & Drop ---
-const columns = [
-  { element: todoList, status: "todo" },
-  { element: inProgressList, status: "in-progress" },
-  { element: doneList, status: "done" },
-];
-
-columns.forEach((column) => {
-  column.element.addEventListener("dragover", (e) => e.preventDefault());
-
-  column.element.addEventListener("drop", (e) => {
-    e.preventDefault();
-    const taskId = Number(e.dataTransfer.getData("text/plain"));
-
-    todos = todos.map((t) =>
-      t.id === taskId ? { ...t, status: column.status } : t,
+  // Update task status (for drag & drop)
+  updateStatus(id, newStatus) {
+    this.todos = this.todos.map((t) =>
+      t.id === id ? { ...t, status: newStatus } : t,
     );
-    saveAndRender();
-  });
-});
+    this.save();
+  },
 
-// --- Main Logic ---
-function filterAndRender() {
-  if (selectedCategory === "all") {
-    renderTodos(todos);
-  } else {
-    const filtered = todos.filter((t) => t.category === selectedCategory);
-    renderTodos(filtered);
-  }
-}
+  // Get filtered data
+  getFilteredTodos() {
+    if (this.selectedCategory === "all") return this.todos;
+    return this.todos.filter((t) => t.category === this.selectedCategory);
+  },
+  updateTodo(id, updateData) {
+    this.todos = this.todos.map((t) =>
+      t.id === id ? { ...t, ...updateData } : t,
+    );
+    this.save();
+  },
+};
 
-// Initial Run
-// Set UI active state based on saved category
-categoryCards.forEach((c) => {
-  if (c.dataset.cat === selectedCategory) c.classList.add("active");
-  else c.classList.remove("active");
-});
-filterAndRender();
-updateCategoryEdit();
+//              COMPONENTS
+// ==========================================
+const Components = {
+  // Task Card Component
+  TaskCard(todo, onDelete, onEdit) {
+    const li = document.createElement("li");
+    li.setAttribute("draggable", "true");
+
+    const contentDiv = document.createElement("div");
+    contentDiv.style.cursor = "pointer";
+
+    const title = document.createElement("strong");
+    title.textContent = todo.text;
+
+    const desc = document.createElement("p");
+    let descText = todo.description || "";
+    if (descText.length > 20) descText = descText.substring(0, 20) + "...";
+    desc.textContent = descText;
+
+    contentDiv.appendChild(title);
+    contentDiv.appendChild(desc);
+    contentDiv.addEventListener("click", () => {
+      window.location.href = `task.html?id=${todo.id}`;
+    });
+    li.appendChild(contentDiv);
+
+    // Drag Start Event
+    li.addEventListener("dragstart", (e) => {
+      e.dataTransfer.setData("text/plain", todo.id);
+    });
+
+    // Buttons Container
+    const btnContainer = document.createElement("div");
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "✖️";
+    deleteButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onDelete(todo.id);
+    });
+
+    const editButton = document.createElement("button");
+    editButton.textContent = "✏️";
+    editButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onEdit(todo.id);
+    });
+
+    btnContainer.appendChild(deleteButton);
+    btnContainer.appendChild(editButton);
+    btnContainer.classList.add("btn-container");
+    li.appendChild(btnContainer);
+
+    return li;
+  },
+};
+
+//            MAIN APP CONTROLLER
+// ==========================================
+const App = {
+  // Initialize the app
+  init() {
+    this.setupEventListeners();
+    this.setupDragAndDrop();
+    this.updateCategoryUI();
+    this.render();
+  },
+
+  // Render tasks to the DOM
+  render() {
+    DOM.todoList.innerHTML = "";
+    DOM.inProgressList.innerHTML = "";
+    DOM.doneList.innerHTML = "";
+
+    const listToRender = Store.getFilteredTodos();
+
+    listToRender.forEach((todo) => {
+      const li = Components.TaskCard(
+        todo,
+        (id) => {
+          Store.deleteTodo(id);
+          this.render();
+        },
+        (id) => {
+          this.handleEdit(id);
+        },
+      );
+      if (todo.status === "todo") DOM.todoList.appendChild(li);
+      else if (todo.status === "in-progress")
+        DOM.inProgressList.appendChild(li);
+      else if (todo.status === "done") DOM.doneList.appendChild(li);
+    });
+  },
+
+  // Update visual active state of category cards
+  updateCategoryUI() {
+    DOM.categoryCards.forEach((c) => {
+      if (c.dataset.cat === Store.selectedCategory) c.classList.add("active");
+      else c.classList.remove("active");
+    });
+  },
+  handleEdit(id) {
+    const todo = Store.todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    DOM.editTodoInput.value = todo.text;
+    DOM.editTodoDescInput.value = todo.description;
+
+    const categoryCardsEdit = document.querySelectorAll(".catE-btn");
+    categoryCardsEdit.forEach((btn) => {
+      btn.dataset.cat === todo.category
+        ? btn.classList.add("active")
+        : btn.classList.remove("active");
+    });
+
+    DOM.modalEdit.classList.add("active");
+
+    DOM.saveEditBtn.onclick = () => {
+      const activeBtn = document.querySelector(".catE-btn.active");
+
+      const updatedData = {
+        text: DOM.editTodoInput.value.trim(),
+        description: DOM.editTodoDescInput.value.trim(),
+        category: activeBtn ? activeBtn.dataset.cat : todo.category,
+      };
+
+      Store.updateTodo(id, updatedData);
+      DOM.modalEdit.classList.remove("active");
+      this.render();
+    };
+  },
+
+  // Setup all UI Event Listeners
+  setupEventListeners() {
+    // Category Filtering
+    DOM.categoryCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        Store.setCategory(card.dataset.cat);
+        this.updateCategoryUI();
+        this.render();
+      });
+    });
+    const categoryCardsEdit = document.querySelectorAll(".catE-btn");
+    categoryCardsEdit.forEach((card) => {
+      card.addEventListener("click", () => {
+        categoryCardsEdit.forEach((c) => c.classList.remove("active"));
+        card.classList.add("active");
+      });
+    });
+
+    // Modal Category Selection
+    DOM.modalCatBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        DOM.modalCatBtns.forEach((c) => c.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    // Modal Toggles
+    DOM.openModalBtn.addEventListener("click", () =>
+      DOM.modal.classList.add("active"),
+    );
+    DOM.closeModalBtn.addEventListener("click", () =>
+      DOM.modal.classList.remove("active"),
+    );
+    DOM.closeEditModalBtn.addEventListener("click", () =>
+      DOM.modalEdit.classList.remove("active"),
+    );
+
+    // Add New Task
+    DOM.saveNewTaskBtn.addEventListener("click", () => {
+      const todoText = DOM.todoInput.value.trim();
+      if (!todoText) return alert("لطفا یک تسک وارد کنید!");
+
+      const activeCategoryBtn = document.querySelector(".cat-btn.active");
+      const category = activeCategoryBtn
+        ? activeCategoryBtn.dataset.cat
+        : "personal";
+      const descText = DOM.todoDescInput.value.trim();
+
+      Store.addTodo(todoText, descText, category);
+
+      DOM.todoInput.value = "";
+      DOM.todoDescInput.value = "";
+      DOM.modal.classList.remove("active");
+
+      this.render();
+    });
+  },
+
+  // Setup Drag & Drop Logic
+  setupDragAndDrop() {
+    const columns = [
+      { element: DOM.todoList, status: "todo" },
+      { element: DOM.inProgressList, status: "in-progress" },
+      { element: DOM.doneList, status: "done" },
+    ];
+
+    columns.forEach((column) => {
+      column.element.addEventListener("dragover", (e) => e.preventDefault());
+
+      column.element.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const taskId = Number(e.dataTransfer.getData("text/plain"));
+        Store.updateStatus(taskId, column.status);
+        this.render();
+      });
+    });
+  },
+};
+
+// START APPLICATION
+App.init();
