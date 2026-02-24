@@ -31,6 +31,16 @@ const Store = {
     localStorage.setItem("todos", JSON.stringify(this.todos));
     localStorage.setItem("selectedCategory", this.selectedCategory);
   },
+  // update count category
+  getCategoryCount(categoryName) {
+    if (categoryName === "all") {
+      return this.todos.length;
+    }
+    const filtered = this.todos.filter(
+      (task) => task.category === categoryName,
+    );
+    return filtered.length;
+  },
 
   setCategory(cat) {
     this.selectedCategory = cat;
@@ -169,9 +179,20 @@ const App = {
         DOM.inProgressList.appendChild(li);
       else if (todo.status === "done") DOM.doneList.appendChild(li);
     });
+    //update count almost render
+    this.updateCategoryCounts();
+    },
+    //update counts category(personal/business)
+  updateCategoryCounts() {
+    DOM.categoryCards.forEach((card) => {
+      const categoryName = card.dataset.cat;
+      const count = Store.getCategoryCount(categoryName);
+      const countTag = card.querySelector(".count");
+      countTag.textContent = count;
+      console.log(count);
+    });
   },
-
-  // Update visual active state of category cards
+    // Update visual active state of category cards
   updateCategoryUI() {
     DOM.categoryCards.forEach((c) => {
       if (c.dataset.cat === Store.selectedCategory) c.classList.add("active");
